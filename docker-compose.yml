@@ -1,0 +1,15 @@
+# Set the version of docker compose to use
+version: '3.8'
+
+# The containers that compose the project
+services:
+  db:
+    image: postgres:15
+    restart: always
+    container_name: gen-ai-tut-backend
+    ports:
+      - '9999:5432'
+    environment:
+      POSTGRES_USER: genaitut
+      POSTGRES_PASSWORD: genaitut 
+      POSTGRES_DB: genaitut 

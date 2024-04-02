@@ -12,3 +12,28 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id      Int     @id @default(autoincrement())
+  name    String
+  key     String  @unique @default(uuid())
+  matches PlayersOnMatches[]
+}
+
+model Match {
+  id      Int    @id @default(autoincrement())
+  name    String
+  players PlayersOnMatches[]
+  // history History[]
+}
+
+model PlayersOnMatches {
+  playerId Int
+  player   User  @relation(fields: [playerId], references: [id])
+  matchId  Int
+  match    Match @relation(fields: [matchId], references: [id])
+
+  createAt DateTime @default(now())
+
+  @@id([playerId, matchId])
+}

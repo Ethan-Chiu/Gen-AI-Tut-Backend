@@ -14,6 +14,11 @@ export class UserController {
     return user;
   }
 
+  @Get('list')
+  async getUsers() {
+    return this.userService.getUsers();
+  }
+
   @Post('create')
   async createUser(@Body() userDto: { name: string }) {
     return this.userService.createUser(userDto.name);

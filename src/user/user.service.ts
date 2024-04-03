@@ -23,6 +23,10 @@ export class UserService {
     return user;
   }
 
+  async getUsers(): Promise<User[]> {
+    return await this.prismaService.user.findMany();
+  }
+
   async createUser(name: string): Promise<User> {
     const user = await this.prismaService.user.create({
       data: {

@@ -18,13 +18,14 @@ model User {
   name    String
   key     String  @unique @default(uuid())
   matches PlayersOnMatches[]
+  msgs    Message[]
 }
 
 model Match {
   id      Int    @id @default(autoincrement())
   name    String
   players PlayersOnMatches[]
-  // history History[]
+  historyMsgs Message[]
 }
 
 model PlayersOnMatches {
@@ -36,4 +37,15 @@ model PlayersOnMatches {
   createAt DateTime @default(now())
 
   @@id([playerId, matchId])
+}
+
+model Message{
+  id Int @id @default(autoincrement())
+  matchId Int
+  match Match @relation(fields: [matchId], references: [id])
+  text String
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+
+  createAt DateTime @default(now())
 }

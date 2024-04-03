@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiKeyGuard } from '../auth/api-key.guard';
 import { User } from '@prisma/client';
@@ -12,5 +12,15 @@ export class UserController {
   @Get()
   async getUser(@CurrentUser() user: User) {
     return user;
+  }
+
+  @Post('create')
+  async createUser(@Body() userDto: { name: string }) {
+    return this.userService.createUser(userDto.name);
+  }
+
+  @Post('delete')
+  async deleteUser(@Body() delUserDto: { id: number }) {
+    return this.userService.deleteUser(delUserDto.id);
   }
 }

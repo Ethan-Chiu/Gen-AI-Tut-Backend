@@ -22,4 +22,22 @@ export class UserService {
 
     return user;
   }
+
+  async createUser(name: string): Promise<User> {
+    const user = await this.prismaService.user.create({
+      data: {
+        name: name,
+      },
+    });
+    return user;
+  }
+
+  async deleteUser(id: number): Promise<User> {
+    const user = await this.prismaService.user.delete({
+      where: {
+        id: id,
+      },
+    });
+    return user;
+  }
 }

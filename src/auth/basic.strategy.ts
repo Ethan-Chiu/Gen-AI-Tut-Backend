@@ -5,22 +5,23 @@ import {
   Dependencies,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Strategy } from 'passport-http-bearer';
+import { BasicStrategy as Strategy } from 'passport-http';
 
 @Injectable()
 @Dependencies(AuthService)
-export class ApiKeyStrategy extends PassportStrategy(Strategy, 'apiKey') {
+export class BasicStrategy extends PassportStrategy(Strategy, 'basic') {
   constructor(private readonly authService: AuthService) {
     super();
   }
 
-  async validate(apiKey: string) {
-    const user = await this.authService.validateUserWithKey(apiKey);
-
-    if (!user) {
+  async validate(username: string, password: string) {
+    const auth = await this.authService.validateUserWithPass(
+      username,
+      password,
+    );
+    if (!auth) {
       throw new UnauthorizedException();
     }
-
-    return user;
+    return auth;
   }
 }

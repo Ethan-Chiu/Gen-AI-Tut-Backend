@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { ApiKeyGuard } from '../auth/api-key.guard';
 import { User } from '@prisma/client';
 import { CurrentUser } from '../auth/current-user';
+import { BasicAuthGuard } from 'src/auth/basic.guard';
 
 @Controller('user')
 export class UserController {
@@ -14,16 +15,19 @@ export class UserController {
     return user;
   }
 
+  @UseGuards(BasicAuthGuard)
   @Get('list')
   async getUsers() {
     return this.userService.getUsers();
   }
 
+  @UseGuards(BasicAuthGuard)
   @Post('create')
   async createUser(@Body() userDto: { name: string }) {
     return this.userService.createUser(userDto.name);
   }
 
+  @UseGuards(BasicAuthGuard)
   @Post('delete')
   async deleteUser(@Body() delUserDto: { id: number }) {
     return this.userService.deleteUser(delUserDto.id);

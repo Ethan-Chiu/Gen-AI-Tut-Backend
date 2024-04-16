@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { MatchService } from './match.service';
 import { ApiKeyGuard } from 'src/auth/api-key.guard';
 import { CurrentUser } from 'src/auth/current-user';
@@ -19,12 +19,13 @@ export class MatchController {
   @UseGuards(BasicAuthGuard)
   @Post('create')
   async createMatch(
-    @Body() body: { name: string; playerOneId: number; playerTwoId: number },
+    @Body() body: { name: string; playerOneId: number; playerTwoId: number, topicId: number },
   ) {
     return await this.matchService.createMatch(
       body.name,
       body.playerOneId,
       body.playerTwoId,
+      body.topicId,
     );
   }
 
@@ -36,8 +37,18 @@ export class MatchController {
 
   @UseGuards(ApiKeyGuard)
   @Get(':id')
-  async getMatch(@Param('id') id: string) {
-    return await this.matchService.getMatch(id);
+  async getMatch(@CurrentUser() user: User, @Param('id') id: string) {
+    const match = await this.matchService.getMatch(id, user.id);
+    if (match === null) {
+      throw new BadRequestException("Match not found, or you're not a player");
+    }
+    return match;
+  }
+
+  @UseGuards(ApiKeyGuard)
+  @Get('/inst/:id')
+  async getMatchInstruction(@CurrentUser() user: User, @Param('id') id: string, @Body() body: {order: number}) {
+    return await this.matchService.getMatchInst(id, user.id, body.order);
   }
 
   @UseGuards(ApiKeyGuard)

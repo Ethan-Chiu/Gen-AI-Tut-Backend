@@ -25,6 +25,10 @@ model Match {
   id      Int    @id @default(autoincrement())
   name    String
   players PlayersOnMatches[]
+
+  topicId Int 
+  topic   Topic @relation(fields: [topicId], references: [id])
+
   historyMsgs Message[]
 }
 
@@ -39,7 +43,7 @@ model PlayersOnMatches {
   @@id([playerId, matchId])
 }
 
-model Message{
+model Message {
   id Int @id @default(autoincrement())
   matchId Int
   match Match @relation(fields: [matchId], references: [id])
@@ -48,4 +52,22 @@ model Message{
   user User @relation(fields: [userId], references: [id])
 
   createAt DateTime @default(now())
+}
+
+model Topic {
+  id Int @id @default(autoincrement())
+  description String
+  instructions Instruction[]
+  matches Match[]
+}
+
+model Instruction {
+  id Int @id @default(autoincrement()) 
+  order Int
+  input String
+  
+  topicId Int
+  topic Topic @relation(fields: [topicId], references: [id])
+
+  @@unique([topicId, order])
 }

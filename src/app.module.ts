@@ -7,10 +7,12 @@ import { UserModule } from './user/user.module';
 import { MatchService } from './match/match.service';
 import { MatchController } from './match/match.controller';
 import { MatchModule } from './match/match.module';
+import { TopicModule } from './topic/topic.module';
+import { TopicController } from './topic/topic.controller';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, MatchModule],
-  controllers: [AppController, MatchController],
+  imports: [PrismaModule, AuthModule, UserModule, MatchModule, TopicModule],
+  controllers: [AppController, MatchController, TopicController],
   providers: [AppService, MatchService],
 })
 export class AppModule {}

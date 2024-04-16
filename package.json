@@ -76,6 +76,6 @@
     "testEnvironment": "node"
   },
   "prisma": {
-    "seed": "env NODE_PATH=./ ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts"
   }
 }

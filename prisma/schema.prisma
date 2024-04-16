@@ -24,6 +24,8 @@ model User {
 model Match {
   id      Int    @id @default(autoincrement())
   name    String
+
+  firstPlayerId Int 
   players PlayersOnMatches[]
 
   topicId Int 

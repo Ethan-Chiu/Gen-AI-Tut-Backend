@@ -17,7 +17,10 @@ export class UserController {
 
   @UseGuards(ApiKeyGuard)
   @Post('rename')
-  async renameUser(@CurrentUser() user: User, @Body() userDto: { name: string }) {
+  async renameUser(
+    @CurrentUser() user: User,
+    @Body() userDto: { name: string },
+  ) {
     return this.userService.renameUser(user.id, userDto.name);
   }
 

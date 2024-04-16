@@ -15,6 +15,12 @@ export class UserController {
     return user;
   }
 
+  @UseGuards(ApiKeyGuard)
+  @Post('rename')
+  async renameUser(@CurrentUser() user: User, @Body() userDto: { name: string }) {
+    return this.userService.renameUser(user.id, userDto.name);
+  }
+
   @UseGuards(BasicAuthGuard)
   @Get('list')
   async getUsers() {

@@ -36,6 +36,18 @@ export class UserService {
     return user;
   }
 
+  async renameUser(userId: number, name: string): Promise<User> {
+    const user = await this.prismaService.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name: name,
+      },
+    });
+    return user;
+  }
+
   async deleteUser(id: number): Promise<User> {
     const user = await this.prismaService.user.delete({
       where: {

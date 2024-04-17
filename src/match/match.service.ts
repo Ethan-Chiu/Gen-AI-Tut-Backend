@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Instruction, Match, MatchStatus, User } from '@prisma/client';
+import {
+  Instruction,
+  Match,
+  MatchStatus,
+  PlayersOnMatches,
+  User,
+} from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -56,15 +62,14 @@ export class MatchService {
     };
   }
 
-  async getMatch(_id: string, userId: number): Promise<Match | null> {
+  async getMatch(
+    _id: string,
+  ): Promise<(Match & { players: PlayersOnMatches[] }) | null> {
     const id: number = parseInt(_id);
     const match = await this.prismaService.match.findUnique({
       where: { id: id },
       include: { players: true, historyMsgs: true },
     });
-
-    if (!match.players.find((p) => p.playerId === userId)) return null;
-
     return match;
   }
 

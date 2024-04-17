@@ -16,12 +16,19 @@ export class ResultController {
   @UseGuards(BasicAuthGuard)
   @Post('submit')
   async submitResult(
-    @Body() resultDto: { winnerId: number; comment: string; matchId: number },
+    @Body()
+    resultDto: {
+      winnerId: number;
+      comment: string;
+      matchId: number;
+      points: { userId: number; points: number }[];
+    },
   ) {
     return this.resultService.submitResult(
       resultDto.winnerId,
       resultDto.comment,
       resultDto.matchId,
+      resultDto.points,
     );
   }
 }

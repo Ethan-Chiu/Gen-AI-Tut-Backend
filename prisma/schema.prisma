@@ -19,6 +19,14 @@ model User {
   key     String  @unique @default(uuid())
   matches PlayersOnMatches[]
   msgs    Message[]
+  results Result[]
+}
+
+
+enum MatchStatus {
+  START
+  FINISHED
+  GRADED
 }
 
 model Match {
@@ -31,7 +39,10 @@ model Match {
   topicId Int 
   topic   Topic @relation(fields: [topicId], references: [id])
 
+  matchStatus  MatchStatus @default(START)
   historyMsgs Message[]
+
+  result Result?
 }
 
 model PlayersOnMatches {
@@ -72,4 +83,18 @@ model Instruction {
   topic Topic @relation(fields: [topicId], references: [id])
 
   @@unique([topicId, order])
+}
+
+model Result {
+  id Int @id @default(autoincrement()) 
+
+  winnerId Int
+  winner User @relation(fields: [winnerId], references: [id])
+
+  comment String
+
+  matchId Int @unique
+  match Match @relation(fields: [matchId], references: [id])
+
+  createAt DateTime @default(now())
 }

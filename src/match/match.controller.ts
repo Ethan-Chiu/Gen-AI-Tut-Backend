@@ -23,7 +23,6 @@ export class MatchController {
     return await this.matchService.getMatches();
   }
 
-  // TODO: guard by admin
   @UseGuards(BasicAuthGuard)
   @Post('create')
   async createMatch(
@@ -62,9 +61,26 @@ export class MatchController {
   @UseGuards(ApiKeyGuard)
   @Get(':id')
   async getMatch(@CurrentUser() user: User, @Param('id') id: string) {
-    const match = await this.matchService.getMatch(id, user.id);
+    const match = await this.matchService.getMatch(id);
+
     if (match === null) {
-      throw new BadRequestException("Match not found, or you're not a player");
+      throw new BadRequestException('Match not found');
+    }
+
+    if (!match.players.find((p) => p.playerId === user.id)) {
+      throw new BadRequestException("You're not a player");
+    }
+
+    return match;
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @Get('/admin/:id')
+  async getMatchAdmin(@Param('id') id: string) {
+    const match = await this.matchService.getMatch(id);
+
+    if (match === null) {
+      throw new BadRequestException('Match not found');
     }
     return match;
   }
@@ -90,5 +106,11 @@ export class MatchController {
       user,
       body.message,
     );
+  }
+
+  @UseGuards(ApiKeyGuard)
+  @Post('end')
+  async endMatch(@CurrentUser() user: User, @Body() body: { matchId: number }) {
+    return await this.matchService.endMatch(body.matchId);
   }
 }

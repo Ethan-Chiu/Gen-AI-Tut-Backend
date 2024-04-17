@@ -18,4 +18,22 @@ export class TopicService {
     });
     return topic;
   }
+
+  async createTopic(description: string) {
+    return await this.prismaService.topic.create({
+      data: {
+        description: description,
+      },
+    });
+  }
+
+  async createInstruction(topicId: number, order: number, input: string) {
+    return await this.prismaService.instruction.create({
+      data: {
+        topicId: topicId,
+        order: order,
+        input: input,
+      },
+    });
+  }
 }

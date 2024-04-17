@@ -9,10 +9,24 @@ import { MatchController } from './match/match.controller';
 import { MatchModule } from './match/match.module';
 import { TopicModule } from './topic/topic.module';
 import { TopicController } from './topic/topic.controller';
+import { ResultController } from './result/result.controller';
+import { ResultModule } from './result/result.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, MatchModule, TopicModule],
-  controllers: [AppController, MatchController, TopicController],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UserModule,
+    MatchModule,
+    TopicModule,
+    ResultModule,
+  ],
+  controllers: [
+    AppController,
+    MatchController,
+    TopicController,
+    ResultController,
+  ],
   providers: [AppService, MatchService],
 })
 export class AppModule {}

@@ -21,8 +21,16 @@ export class ResultService {
   }
 
   async submitResult(winnerId: number, comment: string, matchId: number) {
-    const result = await this.prismaService.result.create({
-      data: {
+    const result = await this.prismaService.result.upsert({
+      where: {
+        matchId: matchId,
+      },
+      create: {
+        winnerId: winnerId,
+        comment: comment,
+        matchId: matchId,
+      },
+      update: {
         winnerId: winnerId,
         comment: comment,
         matchId: matchId,

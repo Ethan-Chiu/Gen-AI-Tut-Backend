@@ -51,7 +51,7 @@ export class MatchService {
     const id: number = parseInt(_id);
     const match = await this.prismaService.match.findUnique({
       where: { id: id },
-      include: { players: true, topic: true },
+      include: { players: true, topic: true, result: true },
     });
 
     if (!match.players.find((p) => p.playerId === userId)) return null;

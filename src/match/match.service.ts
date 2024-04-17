@@ -38,6 +38,24 @@ export class MatchService {
     return match;
   }
 
+  async getMatchInfo(
+    _id: string,
+    userId: number,
+  ): Promise<(Match & { isFirst: boolean }) | null> {
+    const id: number = parseInt(_id);
+    const match = await this.prismaService.match.findUnique({
+      where: { id: id },
+      include: { players: true, topic: true },
+    });
+
+    if (!match.players.find((p) => p.playerId === userId)) return null;
+
+    return {
+      ...match,
+      isFirst: userId === match.firstPlayerId,
+    };
+  }
+
   async getMatch(_id: string, userId: number): Promise<Match | null> {
     const id: number = parseInt(_id);
     const match = await this.prismaService.match.findUnique({
@@ -53,7 +71,7 @@ export class MatchService {
     _id: string,
     userId: number,
     order: number,
-  ): Promise<string | null> {
+  ): Promise<{ input: string } | null> {
     const id: number = parseInt(_id);
     const match = await this.prismaService.match.findUnique({
       where: { id: id },
@@ -70,7 +88,7 @@ export class MatchService {
     );
     if (inst === undefined) return null;
 
-    return inst.input;
+    return { input: inst.input };
   }
 
   async sendMessage(matchId: number, user: User, message: string) {

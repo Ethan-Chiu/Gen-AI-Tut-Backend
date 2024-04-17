@@ -50,6 +50,16 @@ export class MatchController {
   }
 
   @UseGuards(ApiKeyGuard)
+  @Get('info/:id')
+  async getMatchInfo(@CurrentUser() user: User, @Param('id') id: string) {
+    const match = await this.matchService.getMatchInfo(id, user.id);
+    if (match === null) {
+      throw new BadRequestException("Match not found, or you're not a player");
+    }
+    return match;
+  }
+
+  @UseGuards(ApiKeyGuard)
   @Get(':id')
   async getMatch(@CurrentUser() user: User, @Param('id') id: string) {
     const match = await this.matchService.getMatch(id, user.id);

@@ -91,4 +91,10 @@ export class MatchController {
       body.message,
     );
   }
+
+  @UseGuards(ApiKeyGuard)
+  @Post('end')
+  async endMatch(@CurrentUser() user: User, @Body() body: { matchId: number }) {
+    return await this.matchService.endMatch(body.matchId);
+  }
 }

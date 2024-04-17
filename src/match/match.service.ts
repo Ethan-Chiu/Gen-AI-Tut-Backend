@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Instruction, Match, User } from '@prisma/client';
+import { Instruction, Match, MatchStatus, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -63,8 +63,9 @@ export class MatchService {
       include: { players: true, historyMsgs: true },
     });
 
-    if (match.players.find((p) => p.playerId === userId)) return match;
-    return null;
+    if (!match.players.find((p) => p.playerId === userId)) return null;
+
+    return match;
   }
 
   async getMatchInst(
@@ -79,9 +80,8 @@ export class MatchService {
     });
 
     if (match === null) return null;
-    if (!match.players.find((p) => p.playerId === userId)) {
-      return null;
-    }
+
+    if (!match.players.find((p) => p.playerId === userId)) return null;
 
     const inst: Instruction = match.topic.instructions.find(
       (i) => i.order === order,
@@ -92,11 +92,28 @@ export class MatchService {
   }
 
   async sendMessage(matchId: number, user: User, message: string) {
+    const match = await this.prismaService.match.findUnique({
+      where: { id: matchId, players: { some: { playerId: user.id } } },
+    });
+
+    if (match === null) {
+      throw new Error('You are not a player in this match');
+    }
+
     return await this.prismaService.message.create({
       data: {
         matchId: matchId,
         userId: user.id,
         text: message,
+      },
+    });
+  }
+
+  async endMatch(id: number) {
+    return await this.prismaService.match.update({
+      where: { id: id },
+      data: {
+        matchStatus: MatchStatus.FINISHED,
       },
     });
   }

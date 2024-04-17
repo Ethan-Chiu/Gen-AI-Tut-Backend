@@ -21,6 +21,13 @@ model User {
   msgs    Message[]
 }
 
+
+enum MatchStatus {
+  START
+  FINISHED
+  GRADED
+}
+
 model Match {
   id      Int    @id @default(autoincrement())
   name    String
@@ -31,6 +38,7 @@ model Match {
   topicId Int 
   topic   Topic @relation(fields: [topicId], references: [id])
 
+  matchStatus  MatchStatus @default(START)
   historyMsgs Message[]
 }
 

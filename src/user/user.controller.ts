@@ -16,6 +16,12 @@ export class UserController {
   }
 
   @UseGuards(ApiKeyGuard)
+  @Get('point')
+  async getUserPoint(@CurrentUser() user: User) {
+    return this.userService.getUserPoint(user.id);
+  }
+
+  @UseGuards(ApiKeyGuard)
   @Post('rename')
   async renameUser(
     @CurrentUser() user: User,

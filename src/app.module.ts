@@ -11,6 +11,8 @@ import { TopicModule } from './topic/topic.module';
 import { TopicController } from './topic/topic.controller';
 import { ResultController } from './result/result.controller';
 import { ResultModule } from './result/result.module';
+import { PointModule } from './point/point.module';
+import { PointController } from './point/point.controller';
 
 @Module({
   imports: [
@@ -20,12 +22,14 @@ import { ResultModule } from './result/result.module';
     MatchModule,
     TopicModule,
     ResultModule,
+    PointModule,
   ],
   controllers: [
     AppController,
     MatchController,
     TopicController,
     ResultController,
+    PointController,
   ],
   providers: [AppService, MatchService],
 })

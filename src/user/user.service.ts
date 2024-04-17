@@ -27,6 +27,21 @@ export class UserService {
     return await this.prismaService.user.findMany();
   }
 
+  async getUserPoint(userId: number): Promise<{ point: number }> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        points: true,
+      },
+    });
+
+    let sum = 0;
+    user.points.forEach((p) => (sum += p.point));
+    return { point: sum };
+  }
+
   async createUser(name: string): Promise<User> {
     const user = await this.prismaService.user.create({
       data: {

@@ -20,6 +20,7 @@ model User {
   matches PlayersOnMatches[]
   msgs    Message[]
   results Result[]
+  points  Point[]
 }
 
 
@@ -96,5 +97,19 @@ model Result {
   matchId Int @unique
   match Match @relation(fields: [matchId], references: [id])
 
+  points Point[]
+
   createAt DateTime @default(now())
+}
+
+model Point {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+
+  resultId Int
+  result Result @relation(fields: [resultId], references: [id])
+
+  point Int
 }

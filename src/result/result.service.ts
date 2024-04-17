@@ -20,7 +20,12 @@ export class ResultService {
     return result;
   }
 
-  async submitResult(winnerId: number, comment: string, matchId: number) {
+  async submitResult(
+    winnerId: number,
+    comment: string,
+    matchId: number,
+    points: { userId: number; points: number }[],
+  ) {
     const result = await this.prismaService.result.upsert({
       where: {
         matchId: matchId,
@@ -35,6 +40,22 @@ export class ResultService {
         comment: comment,
         matchId: matchId,
       },
+    });
+
+    await this.prismaService.point.deleteMany({
+      where: {
+        resultId: result.id,
+      },
+    });
+
+    await this.prismaService.point.createMany({
+      data: points.map((p) => {
+        return {
+          resultId: result.id,
+          userId: p.userId,
+          point: p.points,
+        };
+      }),
     });
 
     await this.prismaService.match.update({

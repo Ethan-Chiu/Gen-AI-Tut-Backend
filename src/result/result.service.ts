@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { MatchStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -20,12 +21,23 @@ export class ResultService {
   }
 
   async submitResult(winnerId: number, comment: string, matchId: number) {
-    return await this.prismaService.result.create({
+    const result = await this.prismaService.result.create({
       data: {
         winnerId: winnerId,
         comment: comment,
         matchId: matchId,
       },
     });
+
+    await this.prismaService.match.update({
+      where: {
+        id: matchId,
+      },
+      data: {
+        matchStatus: MatchStatus.GRADED,
+      },
+    });
+
+    return result;
   }
 }

@@ -137,4 +137,12 @@ export class MatchService {
   async deleteAllMatches() {
     return await this.prismaService.match.deleteMany();
   }
+
+  async resetMatch(id: number) {
+    return await this.prismaService.message.deleteMany({
+      where: {
+        matchId: id,
+      },
+    });
+  }
 }

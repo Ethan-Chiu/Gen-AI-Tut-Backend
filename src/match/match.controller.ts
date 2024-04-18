@@ -126,4 +126,10 @@ export class MatchController {
   async deleteAllMatches() {
     return await this.matchService.deleteAllMatches();
   }
+
+  @UseGuards(BasicAuthGuard)
+  @Post('reset')
+  async resetMatch(@Body() body: { id: number }) {
+    return await this.matchService.resetMatch(body.id);
+  }
 }

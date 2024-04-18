@@ -26,4 +26,22 @@ export class PointService {
       Object.values(aggregatedData);
     return aggregatedList;
   }
+
+  async getPointList() {
+    const points = await this.prismaService.point.findMany();
+    return points;
+  }
+
+  async deletePoints(id: string) {
+    const _id = parseInt(id);
+    return await this.prismaService.point.delete({
+      where: {
+        id: _id,
+      },
+    });
+  }
+
+  async deleteAllPoints() {
+    return await this.prismaService.point.deleteMany({});
+  }
 }

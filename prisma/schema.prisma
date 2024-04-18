@@ -81,7 +81,7 @@ model Instruction {
   input String
   
   topicId Int
-  topic Topic @relation(fields: [topicId], references: [id])
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   @@unique([topicId, order])
 }

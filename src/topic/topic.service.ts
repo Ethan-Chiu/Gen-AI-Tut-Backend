@@ -36,4 +36,28 @@ export class TopicService {
       },
     });
   }
+
+  async findAll() {
+    return await this.prismaService.topic.findMany();
+  }
+
+  async getInstructions() {
+    return await this.prismaService.instruction.findMany();
+  }
+
+  async deleteTopic(id: string) {
+    return await this.prismaService.topic.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+  }
+
+  async deleteInstruction(id: string) {
+    return await this.prismaService.instruction.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+  }
 }

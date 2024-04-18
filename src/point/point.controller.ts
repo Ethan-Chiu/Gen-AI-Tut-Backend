@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { BasicAuthGuard } from 'src/auth/basic.guard';
 import { PointService } from './point.service';
 
@@ -10,5 +10,23 @@ export class PointController {
   @Get('all')
   async getPoints() {
     return this.pointService.getPoints();
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @Get('list')
+  async getPointList() {
+    return this.pointService.getPointList();
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @Delete('delete/:id')
+  async deletePoint(@Param('id') id: string) {
+    return this.pointService.deletePoints(id);
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @Delete('all/delete')
+  async deleteAllPoints() {
+    return this.pointService.deleteAllPoints();
   }
 }

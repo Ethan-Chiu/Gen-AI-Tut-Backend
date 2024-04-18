@@ -126,4 +126,15 @@ export class MatchService {
       },
     });
   }
+
+  async deleteMatch(id: string) {
+    const _id = parseInt(id);
+    return await this.prismaService.match.delete({
+      where: { id: _id },
+    });
+  }
+
+  async deleteAllMatches() {
+    return await this.prismaService.match.deleteMany();
+  }
 }

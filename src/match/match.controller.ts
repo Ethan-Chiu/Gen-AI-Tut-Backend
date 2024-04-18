@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -112,5 +113,17 @@ export class MatchController {
   @Post('end')
   async endMatch(@CurrentUser() user: User, @Body() body: { matchId: number }) {
     return await this.matchService.endMatch(body.matchId);
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @Delete('delete/:id')
+  async deleteMatch(@Param('id') id: string) {
+    return await this.matchService.deleteMatch(id);
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @Delete('all/delete')
+  async deleteAllMatches() {
+    return await this.matchService.deleteAllMatches();
   }
 }

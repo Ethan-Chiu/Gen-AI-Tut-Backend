@@ -145,4 +145,59 @@ export class MatchService {
       },
     });
   }
+
+  async joinMatch(user: User) {
+    const name = `Match ${new Date()}`;
+    const topicId = Math.floor(Math.random() * 3) + 1; // 1 ~ 3
+
+    // Start a transaction
+    const msg = await this.prismaService.$transaction(async (prisma) => {
+      // Find a match with less than 2 players
+      const onGoingMatches = await prisma.match.findMany({
+        where: {
+          matchStatus: {
+            in: [MatchStatus.CREATED, MatchStatus.START],
+          },
+        },
+        include: { players: true },
+      });
+
+      const existingMatch = onGoingMatches.find((match) =>
+        match.players.find((p) => p.playerId === user.id),
+      );
+      if (existingMatch) {
+        return { message: 'You are already in a match' };
+      }
+
+      const match = onGoingMatches.find((match) => match.players.length < 2);
+
+      if (match) {
+        // Join an existing match
+        await prisma.match.update({
+          where: { id: match.id },
+          data: {
+            matchStatus: MatchStatus.START,
+            players: {
+              create: [{ playerId: user.id }],
+            },
+          },
+        });
+        return { message: 'You joined a match' };
+      } else {
+        // Create a new match
+        await prisma.match.create({
+          data: {
+            name: name,
+            topicId: topicId,
+            firstPlayerId: user.id,
+            players: {
+              create: [{ playerId: user.id }],
+            },
+          },
+        });
+        return { message: 'You created a new match' };
+      }
+    });
+    return msg;
+  }
 }

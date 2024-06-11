@@ -132,4 +132,10 @@ export class MatchController {
   async resetMatch(@Body() body: { id: number }) {
     return await this.matchService.resetMatch(body.id);
   }
+
+  @UseGuards(ApiKeyGuard)
+  @Post('join')
+  async joinMatch(@CurrentUser() user: User) {
+    return await this.matchService.joinMatch(user);
+  }
 }

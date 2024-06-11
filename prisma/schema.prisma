@@ -25,6 +25,7 @@ model User {
 
 
 enum MatchStatus {
+  CREATED
   START
   FINISHED
   GRADED

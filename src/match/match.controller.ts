@@ -138,4 +138,10 @@ export class MatchController {
   async joinMatch(@CurrentUser() user: User) {
     return await this.matchService.joinMatch(user);
   }
+
+  @UseGuards(ApiKeyGuard)
+  @Delete('cancel')
+  async cancelMatch(@CurrentUser() user: User) {
+    return await this.matchService.cancelMatch(user);
+  }
 }

@@ -200,4 +200,22 @@ export class MatchService {
     });
     return msg;
   }
+
+  async cancelMatch(user: User) {
+    const waitingMatches = await this.prismaService.match.deleteMany({
+      where: {
+        matchStatus: {
+          in: [MatchStatus.CREATED],
+        },
+        players: {
+          none: {
+            NOT: {
+              playerId: user.id,
+            },
+          },
+        },
+      },
+    });
+    return waitingMatches;
+  }
 }

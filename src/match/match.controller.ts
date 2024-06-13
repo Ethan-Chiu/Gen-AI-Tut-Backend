@@ -144,4 +144,10 @@ export class MatchController {
   async cancelMatch(@CurrentUser() user: User) {
     return await this.matchService.cancelMatch(user);
   }
+
+  @UseGuards(ApiKeyGuard)
+  @Post('opp_overtime')
+  async oppOvertime(@CurrentUser() user: User) {
+    return await this.matchService.opponentTookTooLong(user);
+  }
 }

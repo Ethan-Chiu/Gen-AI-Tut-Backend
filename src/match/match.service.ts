@@ -7,10 +7,14 @@ import {
   User,
 } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ResultService } from 'src/result/result.service';
 
 @Injectable()
 export class MatchService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly resultService: ResultService,
+  ) {}
 
   async getMatches() {
     return await this.prismaService.match.findMany();
@@ -217,5 +221,58 @@ export class MatchService {
       },
     });
     return waitingMatches;
+  }
+
+  async opponentTookTooLong(user: User) {
+    // Find a match with two players in the status of START
+    const onGoingMatches = await this.prismaService.match.findMany({
+      where: {
+        matchStatus: {
+          in: [MatchStatus.START],
+        },
+        players: {
+          some: {
+            playerId: user.id,
+          },
+        },
+      },
+      include: { players: true },
+    });
+
+    if (onGoingMatches.length === 0) {
+      return { msg: 'You are not in a match that is in progress' };
+    }
+
+    if (onGoingMatches.length !== 1) {
+      return { msg: 'Some thing went wrong, you are in multiple matches' };
+    }
+
+    if (onGoingMatches[0].players.length !== 2) {
+      return { msg: 'Some thing went wrong, players in the match are not 2' };
+    }
+
+    const match = onGoingMatches[0];
+    const reported_player =
+      match.players[0].playerId === user.id
+        ? match.players[1]
+        : match.players[0];
+
+    // TODO: to be recorded in database
+    console.log(
+      'Match id: ',
+      match.id,
+      'Report player Id: ',
+      user.id,
+      'Reported player Id: ',
+      reported_player.playerId,
+    );
+
+    // Give points
+    this.resultService.submitResult(
+      user.id,
+      'Opponent took too long',
+      match.id,
+      [{ userId: user.id, points: 5 }],
+    );
   }
 }

@@ -25,6 +25,7 @@ model User {
 
 
 enum MatchStatus {
+  CREATED
   START
   FINISHED
   GRADED
@@ -40,7 +41,7 @@ model Match {
   topicId Int 
   topic   Topic @relation(fields: [topicId], references: [id])
 
-  matchStatus  MatchStatus @default(START)
+  matchStatus  MatchStatus @default(CREATED)
   historyMsgs Message[] 
 
   result Result?

@@ -20,7 +20,22 @@ export class MatchService {
   ) {}
 
   async getMatches() {
-    return await this.prismaService.match.findMany();
+    return await this.prismaService.match.findMany({
+      include: {
+        players: {
+          include: {
+            player: true,
+          },
+        },
+        topic: true,
+        historyMsgs: true,
+        result: {
+          include: {
+            points: true,
+          },
+        },
+      },
+    });
   }
 
   async getUserMatches(userId: number): Promise<Match[]> {

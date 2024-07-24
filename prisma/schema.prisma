@@ -45,6 +45,8 @@ model Match {
   historyMsgs Message[] 
 
   result Result?
+
+  createAt DateTime @default(now())
 }
 
 model PlayersOnMatches {

@@ -9,6 +9,9 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ResultService } from 'src/result/result.service';
 
+type MessageResponse = {
+  message: string;
+};
 @Injectable()
 export class MatchService {
   constructor(
@@ -17,7 +20,22 @@ export class MatchService {
   ) {}
 
   async getMatches() {
-    return await this.prismaService.match.findMany();
+    return await this.prismaService.match.findMany({
+      include: {
+        players: {
+          include: {
+            player: true,
+          },
+        },
+        topic: true,
+        historyMsgs: true,
+        result: {
+          include: {
+            points: true,
+          },
+        },
+      },
+    });
   }
 
   async getUserMatches(userId: number): Promise<Match[]> {
@@ -105,21 +123,46 @@ export class MatchService {
   }
 
   async sendMessage(matchId: number, user: User, message: string) {
-    const match = await this.prismaService.match.findUnique({
-      where: { id: matchId, players: { some: { playerId: user.id } } },
-    });
+    const result: MessageResponse = await this.prismaService.$transaction(
+      async (prisma) => {
+        const match = await prisma.match.findUnique({
+          where: {
+            id: matchId,
+            players: { some: { playerId: user.id } },
+          },
+          include: { historyMsgs: true },
+        });
 
-    if (match === null) {
-      throw new Error('You are not a player in this match');
-    }
+        if (match === null) {
+          return { message: 'You are not a player in this match' };
+        }
 
-    return await this.prismaService.message.create({
-      data: {
-        matchId: matchId,
-        userId: user.id,
-        text: message,
+        const messageList = match.historyMsgs.sort(
+          (a, b) => a.createAt.getTime() - b.createAt.getTime(),
+        );
+
+        if (messageList.length == 0 && user.id != match.firstPlayerId) {
+          return { message: 'You are not the first player' };
+        }
+
+        if (messageList[messageList.length - 1]?.userId === user.id) {
+          return { message: 'You already sent a message' };
+        }
+
+        const resMessage = await prisma.message.create({
+          data: {
+            matchId: matchId,
+            userId: user.id,
+            text: message,
+          },
+        });
+        return {
+          message: `Created message: ${resMessage.text}`,
+        };
       },
-    });
+    );
+
+    return result;
   }
 
   async endMatch(id: number) {
@@ -155,53 +198,55 @@ export class MatchService {
     const topicId = Math.floor(Math.random() * 3) + 1; // 1 ~ 3
 
     // Start a transaction
-    const msg = await this.prismaService.$transaction(async (prisma) => {
-      // Find a match with less than 2 players
-      const onGoingMatches = await prisma.match.findMany({
-        where: {
-          matchStatus: {
-            in: [MatchStatus.CREATED, MatchStatus.START],
-          },
-        },
-        include: { players: true },
-      });
-
-      const existingMatch = onGoingMatches.find((match) =>
-        match.players.find((p) => p.playerId === user.id),
-      );
-      if (existingMatch) {
-        return { message: 'You are already in a match' };
-      }
-
-      const match = onGoingMatches.find((match) => match.players.length < 2);
-
-      if (match) {
-        // Join an existing match
-        await prisma.match.update({
-          where: { id: match.id },
-          data: {
-            matchStatus: MatchStatus.START,
-            players: {
-              create: [{ playerId: user.id }],
+    const msg: MessageResponse = await this.prismaService.$transaction(
+      async (prisma) => {
+        // Find a match with less than 2 players
+        const onGoingMatches = await prisma.match.findMany({
+          where: {
+            matchStatus: {
+              in: [MatchStatus.CREATED, MatchStatus.START],
             },
           },
+          include: { players: true },
         });
-        return { message: 'You joined a match' };
-      } else {
-        // Create a new match
-        await prisma.match.create({
-          data: {
-            name: name,
-            topicId: topicId,
-            firstPlayerId: user.id,
-            players: {
-              create: [{ playerId: user.id }],
+
+        const existingMatch = onGoingMatches.find((match) =>
+          match.players.find((p) => p.playerId === user.id),
+        );
+        if (existingMatch) {
+          return { message: 'You are already in a match' };
+        }
+
+        const match = onGoingMatches.find((match) => match.players.length < 2);
+
+        if (match) {
+          // Join an existing match
+          await prisma.match.update({
+            where: { id: match.id },
+            data: {
+              matchStatus: MatchStatus.START,
+              players: {
+                create: [{ playerId: user.id }],
+              },
             },
-          },
-        });
-        return { message: 'You created a new match' };
-      }
-    });
+          });
+          return { message: 'You joined a match' };
+        } else {
+          // Create a new match
+          await prisma.match.create({
+            data: {
+              name: name,
+              topicId: topicId,
+              firstPlayerId: user.id,
+              players: {
+                create: [{ playerId: user.id }],
+              },
+            },
+          });
+          return { message: 'You created a new match' };
+        }
+      },
+    );
     return msg;
   }
 
